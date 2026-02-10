@@ -353,6 +353,11 @@ async function allocateFundsToWinners() {
         gas: 300000,
       });
       console.log("Sweep transaction hash:", sweepTx.transactionHash);
+
+      // Wait for transaction to be confirmed before proceeding
+      // This ensures nonce is updated for the next transaction
+      console.log("Waiting for sweep confirmation...");
+      await new Promise((resolve) => setTimeout(resolve, 3000));
     } catch (error) {
       console.error("Sweep failed:", error.message);
       return false;
@@ -363,7 +368,8 @@ async function allocateFundsToWinners() {
   const totalPool = await contract.methods.totalPool().call();
   console.log("Total pool:", web3.utils.fromWei(totalPool, "mwei"), "USDC");
 
-  if (totalPool === "0") {
+  // Handle BigInt comparison (web3.js returns BigInt)
+  if (totalPool == 0 || totalPool.toString() === "0") {
     console.log("No funds to allocate");
     return false;
   }
